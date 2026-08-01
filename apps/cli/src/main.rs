@@ -50,12 +50,32 @@ fn main() {
 
         Commands::Init { path } => {
 
+    println!("Creating PhoneVault...");
+
+
+    match VaultInitializer::initialize(
+        path,
+    ) {
+
+        Ok(_) => {
+
             println!(
-                "Initializing vault at {}",
-                path
+                "Vault initialized successfully"
             );
 
         }
+
+
+        Err(error) => {
+
+            eprintln!(
+                "Vault initialization failed: {}",
+                error
+            );
+
+        }
+    }
+}
 
 
         Commands::Scan { path } => {
@@ -125,3 +145,4 @@ fn main() {
         }
     }
 }
+use phonevault_core::vault::initializer::VaultInitializer;

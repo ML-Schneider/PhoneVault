@@ -1,23 +1,40 @@
+use std::fs;
 use std::path::Path;
 
-use crate::error::PhoneVaultError;
-use crate::vault::creator::VaultCreator;
-use crate::vault::manifest::ManifestWriter;
+use crate::vault::manifest::{Manifest, ManifestWriter};
+
 
 pub struct VaultInitializer;
 
+
 impl VaultInitializer {
+
     pub fn initialize<P: AsRef<Path>>(
-        location: P,
-    ) -> Result<(), PhoneVaultError> {
+        vault_path: P,
+    ) -> Result<(), std::io::Error> {
 
-        VaultCreator::create(&location)?;
+        let vault_path =
+            vault_path.as_ref();
 
-        let vault_path = location
-            .as_ref()
-            .join("PhoneVault");
 
-        ManifestWriter::write(vault_path)?;
+        fs::create_dir_all(
+            vault_path
+        )?;
+
+
+        let manifest =
+            Manifest::new();
+
+
+        let manifest_path =
+            vault_path.join("manifest.json");
+
+
+        ManifestWriter::write(
+            &manifest,
+            manifest_path,
+        )?;
+
 
         Ok(())
     }
