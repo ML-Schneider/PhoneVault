@@ -28,3 +28,8 @@ impl Manifest {
         }
     }
 }
+impl Default for Manifest {
+    fn default() -> Self {
+        Self::new()
+    }
+}

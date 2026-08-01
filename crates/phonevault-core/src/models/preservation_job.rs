@@ -19,11 +19,7 @@ pub struct PreservationJob {
 }
 
 impl PreservationJob {
-    pub fn new(
-        name: String,
-        source: String,
-        destination: String,
-    ) -> Self {
+    pub fn new(name: String, source: String, destination: String) -> Self {
         let created_at = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()

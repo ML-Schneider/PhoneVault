@@ -3,86 +3,37 @@ use std::fs::File;
 
 use phonevault_core::transfer::preservation::PreservationJob;
 
-
 #[test]
 fn preservation_job_copies_and_verifies_files() {
+    let source = std::env::temp_dir().join("phonevault_source_test");
 
-    let source =
-        std::env::temp_dir()
-        .join("phonevault_source_test");
+    let destination = std::env::temp_dir().join("phonevault_destination_test");
 
+    let _ = fs::remove_dir_all(&source);
 
-    let destination =
-        std::env::temp_dir()
-        .join("phonevault_destination_test");
+    let _ = fs::remove_dir_all(&destination);
 
+    fs::create_dir_all(&source).unwrap();
 
-    let _ =
-        fs::remove_dir_all(&source);
+    fs::create_dir_all(&destination).unwrap();
 
-    let _ =
-        fs::remove_dir_all(&destination);
+    File::create(source.join("photo.jpg")).unwrap();
 
+    File::create(source.join("song.mp3")).unwrap();
 
-    fs::create_dir_all(&source)
-        .unwrap();
+    let job = PreservationJob::new(source.clone(), destination.clone());
 
+    let report = job.execute();
 
-    fs::create_dir_all(&destination)
-        .unwrap();
+    assert_eq!(report.files_scanned, 2);
 
+    assert_eq!(report.files_copied, 2);
 
-    File::create(
-        source.join("photo.jpg")
-    )
-    .unwrap();
+    assert_eq!(report.files_verified, 2);
 
+    assert_eq!(report.failures, 0);
 
-    File::create(
-        source.join("song.mp3")
-    )
-    .unwrap();
+    fs::remove_dir_all(&source).unwrap();
 
-
-    let job =
-        PreservationJob::new(
-            source.clone(),
-            destination.clone(),
-        );
-
-
-    let report =
-        job.execute();
-
-
-    assert_eq!(
-        report.files_scanned,
-        2
-    );
-
-
-    assert_eq!(
-        report.files_copied,
-        2
-    );
-
-
-    assert_eq!(
-        report.files_verified,
-        2
-    );
-
-
-    assert_eq!(
-        report.failures,
-        0
-    );
-
-
-    fs::remove_dir_all(&source)
-        .unwrap();
-
-
-    fs::remove_dir_all(&destination)
-        .unwrap();
+    fs::remove_dir_all(&destination).unwrap();
 }

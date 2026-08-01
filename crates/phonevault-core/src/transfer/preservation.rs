@@ -11,115 +11,62 @@ use crate::vault::service::ManifestService;
 
 use super::report::TransferReport;
 
-
 pub struct PreservationJob {
-
     pub source: PathBuf,
 
     pub destination: PathBuf,
 }
 
-
 impl PreservationJob {
-
-    pub fn new(
-        source: PathBuf,
-        destination: PathBuf,
-    ) -> Self {
-
+    pub fn new(source: PathBuf, destination: PathBuf) -> Self {
         Self {
             source,
             destination,
         }
     }
 
+    pub fn execute(&self) -> TransferReport {
+        let records = Scanner::scan(&self.source);
 
-    pub fn execute(
-        &self,
-    ) -> TransferReport {
+        let records = InventoryService::fingerprint_records(records);
 
-        let records =
-            Scanner::scan(&self.source);
+        let mut report = TransferReport::new();
 
+        let manifest_path = self.destination.join("manifest.json");
 
-        let records =
-            InventoryService::fingerprint_records(records);
+        let mut manifest = ManifestService::load_or_create(&manifest_path).unwrap();
 
-
-        let mut report =
-            TransferReport::new();
-
-
-            let manifest_path =
-    self.destination.join("manifest.json");
-
-
-let mut manifest =
-    ManifestService::load_or_create(
-        &manifest_path
-    )
-    .unwrap();
-
-
-        report.files_scanned =
-            records.len();
-
+        report.files_scanned = records.len();
 
         for record in records {
+            let destination = self.destination.join(&record.name);
 
-            let destination =
-                self.destination.join(&record.name);
-
-
-            match FileCopier::copy(
-                &record.path,
-                &destination,
-            ) {
-
+            match FileCopier::copy(&record.path, &destination) {
                 Ok(_) => {
-
                     report.files_copied += 1;
 
-
-                    if FileVerifier::verify(
-                        &record.path,
-                        &destination,
-                    ) {
-
+                    if FileVerifier::verify(&record.path, &destination) {
                         report.files_verified += 1;
                         ManifestService::add_file(
-    &mut manifest,
-   ManifestFile {
-    name: record.name.clone(),
-    size: record.size,
-    hash: record.hash.clone().unwrap_or_else(|| {
-        "UNKNOWN".to_string()
-    }),
-},
-);
-
+                            &mut manifest,
+                            ManifestFile {
+                                name: record.name.clone(),
+                                size: record.size,
+                                hash: record.hash.clone().unwrap_or_else(|| "UNKNOWN".to_string()),
+                            },
+                        );
                     } else {
-
                         report.failures += 1;
-
                     }
                 }
 
-
                 Err(_) => {
-
                     report.failures += 1;
-
                 }
             }
         }
 
-ManifestService::save(
-    &manifest,
-    &manifest_path,
-)
-.unwrap();
-
+        ManifestService::save(&manifest, &manifest_path).unwrap();
 
         report
     }

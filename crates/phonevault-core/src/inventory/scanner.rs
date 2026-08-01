@@ -7,18 +7,11 @@ use super::record::FileRecord;
 pub struct Scanner;
 
 impl Scanner {
-    pub fn scan<P: AsRef<Path>>(
-        location: P,
-    ) -> Vec<FileRecord> {
-
+    pub fn scan<P: AsRef<Path>>(location: P) -> Vec<FileRecord> {
         let mut records = Vec::new();
 
-        for entry in WalkDir::new(location)
-            .into_iter()
-            .filter_map(Result::ok)
-        {
+        for entry in WalkDir::new(location).into_iter().filter_map(Result::ok) {
             if entry.file_type().is_file() {
-
                 let metadata = match entry.metadata() {
                     Ok(data) => data,
                     Err(_) => continue,
@@ -27,22 +20,16 @@ impl Scanner {
                 let path = entry.path();
 
                 let record = FileRecord {
-    name: path
-        .file_name()
-        .unwrap()
-        .to_string_lossy()
-        .to_string(),
+                    name: path.file_name().unwrap().to_string_lossy().to_string(),
 
-    path: path
-        .to_string_lossy()
-        .to_string(),
+                    path: path.to_string_lossy().to_string(),
 
-    size: metadata.len(),
+                    size: metadata.len(),
 
-    file_type: detect_file_type(path),
+                    file_type: detect_file_type(path),
 
-    hash: None,
-};
+                    hash: None,
+                };
 
                 records.push(record);
             }
@@ -52,27 +39,15 @@ impl Scanner {
     }
 }
 
-
 fn detect_file_type(path: &Path) -> String {
+    match path.extension().and_then(|x| x.to_str()) {
+        Some("jpg") | Some("jpeg") | Some("png") | Some("heic") => "image".to_string(),
 
-    match path.extension()
-        .and_then(|x| x.to_str())
-    {
-        Some("jpg") |
-        Some("jpeg") |
-        Some("png") |
-        Some("heic") => "image".to_string(),
+        Some("mp4") | Some("mov") => "video".to_string(),
 
-        Some("mp4") |
-        Some("mov") => "video".to_string(),
+        Some("mp3") | Some("wav") | Some("m4a") => "audio".to_string(),
 
-        Some("mp3") |
-        Some("wav") |
-        Some("m4a") => "audio".to_string(),
-
-        Some("pdf") |
-        Some("doc") |
-        Some("docx") => "document".to_string(),
+        Some("pdf") | Some("doc") | Some("docx") => "document".to_string(),
 
         _ => "other".to_string(),
     }
