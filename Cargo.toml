@@ -2,5 +2,6 @@
 resolver = "2"
 
 members = [
-    "crates/phonevault-core"
+    "crates/phonevault-core",
+    "apps/cli"
 ]
