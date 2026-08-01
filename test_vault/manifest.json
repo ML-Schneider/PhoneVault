@@ -1,0 +1,15 @@
+{
+  "vault_version": "0.1",
+  "files": [
+    {
+      "name": "story.txt",
+      "size": 15,
+      "hash": "a7e2149c275ad0908c39f827ef2cc8763e3d21402f2da254edf05f7d0d7c95b1"
+    },
+    {
+      "name": "photo.txt",
+      "size": 16,
+      "hash": "25db13df5e1758d9f4e87d29917ee01fa451a53ef05fc679fa86f24e910f9fde"
+    }
+  ]
+}

@@ -6,6 +6,9 @@ use crate::inventory::service::InventoryService;
 use crate::transfer::copier::FileCopier;
 use crate::transfer::verifier::FileVerifier;
 
+use crate::vault::manifest::ManifestFile;
+use crate::vault::service::ManifestService;
+
 use super::report::TransferReport;
 
 
@@ -47,6 +50,17 @@ impl PreservationJob {
             TransferReport::new();
 
 
+            let manifest_path =
+    self.destination.join("manifest.json");
+
+
+let mut manifest =
+    ManifestService::load_or_create(
+        &manifest_path
+    )
+    .unwrap();
+
+
         report.files_scanned =
             records.len();
 
@@ -73,6 +87,16 @@ impl PreservationJob {
                     ) {
 
                         report.files_verified += 1;
+                        ManifestService::add_file(
+    &mut manifest,
+   ManifestFile {
+    name: record.name.clone(),
+    size: record.size,
+    hash: record.hash.clone().unwrap_or_else(|| {
+        "UNKNOWN".to_string()
+    }),
+},
+);
 
                     } else {
 
@@ -89,6 +113,12 @@ impl PreservationJob {
                 }
             }
         }
+
+ManifestService::save(
+    &manifest,
+    &manifest_path,
+)
+.unwrap();
 
 
         report

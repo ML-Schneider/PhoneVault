@@ -63,3 +63,26 @@ impl ManifestWriter {
         Ok(())
     }
 }
+
+
+pub struct ManifestReader;
+
+
+impl ManifestReader {
+
+    pub fn read<P: AsRef<Path>>(
+        path: P,
+    ) -> Result<Manifest, std::io::Error> {
+
+        let file =
+            File::open(path)?;
+
+
+        let manifest =
+            serde_json::from_reader(file)
+                .unwrap();
+
+
+        Ok(manifest)
+    }
+}
