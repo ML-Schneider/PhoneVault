@@ -9,10 +9,10 @@ pub struct FileCopier;
 
 impl FileCopier {
 
-    pub fn copy<P: AsRef<Path>>(
-        source: P,
-        destination: P,
-    ) -> Result<(), PhoneVaultError> {
+    pub fn copy<S: AsRef<Path>, D: AsRef<Path>>(
+    source: S,
+    destination: D,
+) -> Result<(), PhoneVaultError> {
 
         fs::copy(
             source,
