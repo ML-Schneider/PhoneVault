@@ -27,20 +27,22 @@ impl Scanner {
                 let path = entry.path();
 
                 let record = FileRecord {
-                    name: path
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .to_string(),
+    name: path
+        .file_name()
+        .unwrap()
+        .to_string_lossy()
+        .to_string(),
 
-                    path: path
-                        .to_string_lossy()
-                        .to_string(),
+    path: path
+        .to_string_lossy()
+        .to_string(),
 
-                    size: metadata.len(),
+    size: metadata.len(),
 
-                    file_type: detect_file_type(path),
-                };
+    file_type: detect_file_type(path),
+
+    hash: None,
+};
 
                 records.push(record);
             }

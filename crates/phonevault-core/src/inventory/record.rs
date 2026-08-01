@@ -4,4 +4,5 @@ pub struct FileRecord {
     pub path: String,
     pub size: u64,
     pub file_type: String,
+    pub hash: Option<String>,
 }
