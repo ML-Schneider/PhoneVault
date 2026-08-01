@@ -1,36 +1,127 @@
-use std::env;
+use std::path::PathBuf;
 
-use phonevault_core::vault::initializer::VaultInitializer;
+use phonevault_core::transfer::preservation::PreservationJob;
+
+use clap::{Parser, Subcommand};
+
+
+#[derive(Parser)]
+#[command(
+    name = "phonevault",
+    version = "0.1.0",
+    about = "Digital memory preservation system"
+)]
+struct Cli {
+
+    #[command(subcommand)]
+    command: Commands,
+}
+
+
+#[derive(Subcommand)]
+enum Commands {
+
+    Init {
+        path: String,
+    },
+
+    Scan {
+        path: String,
+    },
+
+    Preserve {
+        source: String,
+        destination: String,
+    },
+
+    Verify {
+        path: String,
+    },
+}
+
 
 fn main() {
 
-    let args: Vec<String> = env::args().collect();
+    let cli =
+        Cli::parse();
 
-    if args.len() < 3 {
-        println!("Usage:");
-        println!("phonevault init <location>");
-        return;
-    }
 
-    let command = &args[1];
-    let location = &args[2];
+    match cli.command {
 
-    match command.as_str() {
+        Commands::Init { path } => {
 
-        "init" => {
-            match VaultInitializer::initialize(location) {
-                Ok(_) => {
-                    println!("PhoneVault created successfully.");
-                }
+            println!(
+                "Initializing vault at {}",
+                path
+            );
 
-                Err(error) => {
-                    println!("Error creating PhoneVault: {:?}", error);
-                }
-            }
         }
 
-        _ => {
-            println!("Unknown command.");
+
+        Commands::Scan { path } => {
+
+            println!(
+                "Scanning {}",
+                path
+            );
+
+        }
+
+
+        Commands::Preserve {
+    source,
+    destination,
+} => {
+
+    println!(
+        "Starting preservation..."
+    );
+
+
+    let job =
+        PreservationJob::new(
+            PathBuf::from(source),
+            PathBuf::from(destination),
+        );
+
+
+    let report =
+        job.execute();
+
+
+    println!();
+
+    println!("Preservation complete");
+
+    println!(
+        "Files scanned: {}",
+        report.files_scanned
+    );
+
+    println!(
+        "Files copied: {}",
+        report.files_copied
+    );
+
+    println!(
+        "Files verified: {}",
+        report.files_verified
+    );
+
+    println!(
+        "Failures: {}",
+        report.failures
+    );
+}
+
+
+        Commands::Verify { path } => {
+
+            println!(
+                "Verifying {}",
+                path
+            );
+
         }
     }
 }
