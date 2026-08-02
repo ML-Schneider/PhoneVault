@@ -1,0 +1,1 @@
+std::result::Result<std::vec::Vec<phonevault_core::inventory::record::FileRecord>, phonevault_core::error::PhoneVaultError>

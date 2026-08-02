@@ -1,8 +1,10 @@
 use std::path::PathBuf;
 
-use phonevault_core::transfer::preservation::PreservationJob;
-
 use clap::{Parser, Subcommand};
+
+use phonevault_core::jobs::preservation::PreservationJob;
+use phonevault_core::vault::initializer::VaultInitializer;
+use phonevault_core::vault::verifier::VaultVerifier;
 
 #[derive(Parser)]
 #[command(
@@ -56,19 +58,20 @@ fn main() {
 
             let job = PreservationJob::new(PathBuf::from(source), PathBuf::from(destination));
 
-            let report = job.execute();
+            match job.execute() {
+                Ok(report) => {
+                    println!("Preservation complete");
 
-            println!();
+                    println!("Files scanned: {}", report.files_scanned);
+                    println!("Files copied: {}", report.files_copied);
+                    println!("Files verified: {}", report.files_verified);
+                    println!("Failures: {}", report.failures);
+                }
 
-            println!("Preservation complete");
-
-            println!("Files scanned: {}", report.files_scanned);
-
-            println!("Files copied: {}", report.files_copied);
-
-            println!("Files verified: {}", report.files_verified);
-
-            println!("Failures: {}", report.failures);
+                Err(error) => {
+                    eprintln!("Preservation failed: {}", error);
+                }
+            }
         }
 
         Commands::Verify { path } => {
@@ -77,13 +80,9 @@ fn main() {
             match VaultVerifier::verify(path) {
                 Ok(report) => {
                     println!();
-
                     println!("Vault Integrity Check");
-
                     println!("Files checked: {}", report.checked);
-
                     println!("Passed: {}", report.passed);
-
                     println!("Failed: {}", report.failed);
                 }
 
@@ -94,6 +93,3 @@ fn main() {
         }
     }
 }
-use phonevault_core::vault::initializer::VaultInitializer;
-
-use phonevault_core::vault::verifier::VaultVerifier;

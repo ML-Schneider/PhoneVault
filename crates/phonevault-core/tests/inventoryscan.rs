@@ -17,7 +17,7 @@ fn scanner_finds_files() {
 
     File::create(test_dir.join("document.pdf")).unwrap();
 
-    let records = Scanner::scan(&test_dir);
+    let records = Scanner::scan(&test_dir).expect("scanner should succeed");
 
     assert_eq!(records.len(), 3);
 

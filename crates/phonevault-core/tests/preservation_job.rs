@@ -1,7 +1,7 @@
 use std::fs;
 use std::fs::File;
 
-use phonevault_core::transfer::preservation::PreservationJob;
+use phonevault_core::jobs::preservation::PreservationJob;
 
 #[test]
 fn preservation_job_copies_and_verifies_files() {
@@ -23,7 +23,9 @@ fn preservation_job_copies_and_verifies_files() {
 
     let job = PreservationJob::new(source.clone(), destination.clone());
 
-    let report = job.execute();
+    let report = job
+    .execute()
+    .expect("preservation job should succeed");
 
     assert_eq!(report.files_scanned, 2);
 

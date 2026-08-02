@@ -5,6 +5,8 @@ use std::io;
 pub enum PhoneVaultError {
     Io(io::Error),
     Json(serde_json::Error),
+    WalkDir(walkdir::Error),
+
     InvalidManifest(String),
     VerificationFailed(String),
 }
@@ -18,6 +20,10 @@ impl fmt::Display for PhoneVaultError {
 
             PhoneVaultError::Json(err) => {
                 write!(f, "JSON error: {}", err)
+            }
+
+            PhoneVaultError::WalkDir(err) => {
+                write!(f, "Directory traversal error: {}", err)
             }
 
             PhoneVaultError::InvalidManifest(msg) => {
@@ -42,5 +48,11 @@ impl From<io::Error> for PhoneVaultError {
 impl From<serde_json::Error> for PhoneVaultError {
     fn from(error: serde_json::Error) -> Self {
         PhoneVaultError::Json(error)
+    }
+}
+
+impl From<walkdir::Error> for PhoneVaultError {
+    fn from(error: walkdir::Error) -> Self {
+        PhoneVaultError::WalkDir(error)
     }
 }
