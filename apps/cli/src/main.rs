@@ -26,6 +26,8 @@ enum Commands {
     Preserve { source: String, destination: String },
 
     Verify { path: String },
+
+    Import,
 }
 
 fn main() {
@@ -91,5 +93,55 @@ fn main() {
                 }
             }
         }
+
+        Commands::Import => {
+    use std::io::{self, Write};
+
+println!();
+println!("═══════════════════════════════");
+println!("        PhoneVault");
+println!(" Preserve Your Digital Life");
+println!("═══════════════════════════════");
+println!();
+
+print!("Source folder: ");
+io::stdout().flush().unwrap();
+
+let mut source = String::new();
+io::stdin().read_line(&mut source).unwrap();
+
+print!("Destination vault: ");
+io::stdout().flush().unwrap();
+
+let mut destination = String::new();
+io::stdin().read_line(&mut destination).unwrap();
+
+let source = source.trim();
+let destination = destination.trim();
+
+println!();
+println!();
+println!("Starting preservation...");
+
+let job = PreservationJob::new(
+    PathBuf::from(source),
+    PathBuf::from(destination),
+);
+
+match job.execute() {
+    Ok(report) => {
+        println!("Preservation complete");
+        println!("Files scanned: {}", report.files_scanned);
+        println!("Files copied: {}", report.files_copied);
+        println!("Files verified: {}", report.files_verified);
+        println!("Failures: {}", report.failures);
     }
+
+    Err(error) => {
+        eprintln!("Preservation failed: {}", error);
+    }
+}
+println!();
+    }
+  }
 }

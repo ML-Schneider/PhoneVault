@@ -30,6 +30,10 @@ impl PreservationJob {
 
         let mut report = TransferReport::new();
 
+        let content_root = self.destination.join("Content");
+
+std::fs::create_dir_all(&content_root)?;
+
         let manifest_path = self.destination.join("manifest.json");
 
         let mut manifest = ManifestService::load_or_create(&manifest_path)?;
@@ -37,7 +41,17 @@ impl PreservationJob {
         report.files_scanned = records.len();
 
         for record in records {
-            let destination = self.destination.join(&record.name);
+            let source_path = std::path::Path::new(&record.path);
+
+let relative_path = source_path
+    .strip_prefix(&self.source)
+    .unwrap();
+
+let destination = content_root.join(relative_path);
+
+if let Some(parent) = destination.parent() {
+    std::fs::create_dir_all(parent)?;
+}
 
             match FileCopier::copy(&record.path, &destination) {
                 Ok(_) => {

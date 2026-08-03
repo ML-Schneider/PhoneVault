@@ -15,7 +15,7 @@ pub struct Manifest {
 impl Manifest {
     pub fn new() -> Self {
         Self {
-            vault_version: "0.1".to_string(),
+            vault_version: "0.2".to_string(),
             files: Vec::new(),
         }
     }
@@ -23,8 +23,11 @@ impl Manifest {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ManifestFile {
-    pub name: String,
+    /// Path relative to the Content/ directory.
+    pub path: String,
+
     pub size: u64,
+
     pub hash: String,
 }
 
